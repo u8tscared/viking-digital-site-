@@ -244,7 +244,7 @@ p{margin:0}
 .infra p{margin-top:14px;color:#B5BDD8;font-size:16px;line-height:1.6}
 .infra ul{list-style:none;padding:0;margin:auto 0 0;padding-top:24px;display:flex;flex-wrap:wrap;gap:8px}
 .infra li{border:1px solid rgba(255,255,255,.2);padding:8px 12px;font-size:13.5px}
-.core{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.core{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .core .photo{aspect-ratio:1/1}
 .core .person h4{font-size:18px}
 .core .person .meta{padding:16px 16px 18px}
