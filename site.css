@@ -693,3 +693,11 @@ footer{padding-top:80px;overflow:hidden}
 .ft3.in2 .ft3-row>*{opacity:1;transform:none}
 .ft3.in2 .ft3-row>:nth-child(2){transition-delay:.08s}.ft3.in2 .ft3-row>:nth-child(3){transition-delay:.16s}
 @media (prefers-reduced-motion:reduce){.js .nav .brand,.js .menu a,.js .nav .btn,.js .nav .burger,.js .ft3-cta-r,.js .ft3-row>*{opacity:1;transform:none;animation:none;transition:none}}
+/* rounded floating nav */
+.nav .wrap{border-radius:0;transition:max-width .75s var(--E),height .6s var(--E),transform .6s var(--E),padding .6s var(--E),gap .6s var(--E),background .4s,box-shadow .6s var(--E),border-radius .6s var(--E)}
+.nav.scrolled .wrap{border-radius:18px;padding-left:16px;padding-right:8px}
+.nav .btn,.menu .pill{transition:color .35s var(--ease),height .6s var(--ease),padding .6s var(--ease),box-shadow .45s var(--ease),border-radius .6s var(--ease)}
+.menu .pill{transition:transform .45s var(--ease),width .45s var(--ease),opacity .25s,border-radius .6s}
+.nav.scrolled .btn{border-radius:12px}
+.nav.scrolled .menu .pill{border-radius:10px}
+.nav.scrolled .prog-top{left:18px;right:18px;border-radius:2px}
