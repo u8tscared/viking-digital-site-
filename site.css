@@ -631,3 +631,19 @@ footer{padding-top:80px;overflow:hidden}
 .ft3-bot .up .ic{transition:transform .35s var(--ease)}
 .ft3-bot .up:hover .ic{transform:translateY(-3px)}
 @media (max-width:980px){.ft3-cta{grid-template-columns:1fr;align-items:start}.ft3-row{grid-template-columns:1fr;justify-items:start;gap:22px}.ft3-addr{justify-self:start;text-align:left}}
+
+/* ---------- hero variants (hero.html) ---------- */
+[data-hv="1"] .hero2 h1 .w.blue>span{background:linear-gradient(var(--red),var(--red)) 0 100%/0 2px no-repeat;animation:rise .9s var(--ease) forwards,uline .8s var(--ease) 1.3s forwards}
+@keyframes uline{to{background-size:100% 2px}}
+[data-hv="2"] .hero2 h1 .w>span{transform:none;color:transparent;-webkit-text-stroke:1px var(--ink);animation:inkin 1.1s var(--ease) forwards}
+[data-hv="2"] .hero2 h1 .w.blue>span{-webkit-text-stroke-color:var(--blue);animation-name:inkinb}
+@keyframes inkin{60%{color:transparent}to{color:var(--ink);-webkit-text-stroke-color:transparent}}
+@keyframes inkinb{60%{color:transparent}to{color:var(--blue);-webkit-text-stroke-color:transparent}}
+[data-hv="3"] .hero2 h1 .w>span{transform:none;opacity:0;filter:blur(10px);animation:blurin 1s var(--ease) forwards}
+[data-hv="3"] .hero2 h1 .w.blue>span{background:linear-gradient(100deg,var(--blue) 40%,#9DB0FF 50%,var(--blue) 60%) 120% 0/250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:blurin 1s var(--ease) forwards,sheen 1.6s var(--ease) 1.6s forwards}
+@keyframes blurin{from{opacity:0;filter:blur(10px);transform:translateY(.25em)}to{opacity:1;filter:none;transform:none}}
+@keyframes sheen{to{background-position:-20% 0}}
+.hvbar{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:4px;padding:5px;background:var(--ink);box-shadow:0 12px 32px rgba(11,19,48,.25)}
+.hvbar span{color:#7F88A6;font:500 11px var(--f-mono,monospace);letter-spacing:.06em;text-transform:uppercase;padding:0 10px 0 8px}
+.hvbar a{color:#C4CAE0;font-size:13.5px;font-weight:600;padding:8px 14px;transition:background .25s,color .25s}
+.hvbar a:hover{color:#fff}.hvbar a.on{background:#fff;color:var(--ink)}

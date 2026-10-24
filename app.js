@@ -202,13 +202,28 @@ function Campus(cv,opt){
 }
 
 /* hero campus: built and live, slow ambient motion, scene eases in once */
-(function(){const cv=$('#campus');if(!cv)return;const cp=Campus(cv,{hover:true,tip:$('#tip'),callouts:true,fit:1.02});cp.size();
+(function(){const cv=$('#campus');if(!cv)return;const hv=document.documentElement.dataset.hv||'';const t0=performance.now();let cp;
+ const o={hover:true,tip:$('#tip'),callouts:true,fit:1.02};
+ // V1 scan: a slow beam crosses the site every ~9s and lights the roofs it passes
+ const beam=t=>{const u=(t/4000)%1;return u<.62?-30+u/.62*58:null};
+ if(hv==='1'){o.hl=(n,t,h)=>{const b=beam(t);if(b===null)return 0;const c=h[0]+h[2]/2;return Math.max(0,1-Math.abs(b-c)/4)};
+  o.after=(x,P,t)=>{const b=beam(t);if(b===null)return;const a=P(b,-14),c=P(b,22),g=x.createLinearGradient(a[0],a[1],c[0],c[1]);g.addColorStop(0,'rgba(238,43,47,0)');g.addColorStop(.5,'rgba(238,43,47,.85)');g.addColorStop(1,'rgba(238,43,47,0)');x.strokeStyle=g;x.lineWidth=1.5;x.beginPath();x.moveTo(...a);x.lineTo(...c);x.stroke()}}
+ // V2 blueprint: halls start as dashed wireframes and fill in a west-to-east wave
+ if(hv==='2'){o.fill=(n,t,h)=>easeOut(clamp((performance.now()-t0-700-(h[0]+26)/45*2200)/700))}
+ cp=Campus(cv,o);cp.size();
  Object.assign(cp.st,{survey:1,power:1,build:1,ops:1});
  if(RM){cp.frame(0);cv.classList.add('shown');return}
  let vis=true,raf=0;
  function loop(now){cp.frame(now*.45);raf=vis?requestAnimationFrame(loop):0}
  onVisible(cv,v=>{vis=v;if(v&&!raf)raf=requestAnimationFrame(loop)});raf=requestAnimationFrame(loop);
- requestAnimationFrame(()=>requestAnimationFrame(()=>cv.classList.add('shown')))})();
+ requestAnimationFrame(()=>requestAnimationFrame(()=>cv.classList.add('shown')));
+ // V3 guided: a calm tour focuses one hall at a time with its label, pausing when the visitor takes over
+ if(hv==='3'){const tip=$('#tip'),stops=[1,6,0,10,12,7,3];let k=0,user=false;
+  cv.addEventListener('pointerenter',()=>user=true);cv.addEventListener('pointerleave',()=>user=false);
+  const step=()=>{if(!user){const n=stops[k++%stops.length],top=cp.topOf(n);cp.setHover(n);
+    if(top&&tip){const L=cp.LBL[cp.halls[n][5]];tip.querySelector('#tipk').textContent=L[0];tip.querySelector('#tipv').textContent=L[1];
+     const cx=top.reduce((a,p)=>a+p[0],0)/4,cy=Math.min(...top.map(p=>p[1]));tip.style.left=Math.min(cv.clientWidth-230,cx-20)+'px';tip.style.top=Math.max(0,cy-74)+'px';tip.classList.remove('on');void tip.offsetWidth;tip.classList.add('on')}}};
+  setTimeout(()=>{step();setInterval(step,2800)},1600)}})();
 
 /* phases: scroll-pinned build story */
 (function(){const sec=$('#phases');if(!sec)return;const cv=$('#phcanvas'),cp=Campus(cv,{fit:.9,yShift:-.03});const lis=$$('#phlist li'),bar=$('#phbar'),k=$('#phk');
