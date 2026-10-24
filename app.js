@@ -241,24 +241,38 @@ function Campus(cv,opt){
  onVisible(sec,v=>{vis=v;if(v&&!raf){cp.size();raf=requestAnimationFrame(loop)}});cp.size();setAct(0)})();
 
 /* ---------- Nordic dot map (Natural Earth 1:50m) ---------- */
-(function(){const c=$('#map');if(!c||!window.__NORDIC)return;const g=c.getContext('2d');const rows=window.__NORDIC.split(',');const NR=rows.length,NC=rows[0].length;
- let w,h,T=0,vis=false,mx=-999,my=-999,cell,offx,offy;
- function size(){const r=c.getBoundingClientRect();w=r.width;h=r.height;c.width=w*DPR;c.height=h*DPR;g.setTransform(DPR,0,0,DPR,0,0);cell=Math.min(w/NC,(h-40)/NR);offx=(w-cell*NC)/2;offy=(h-cell*NR)/2}
- const OSLO=[.275,.684];
- function draw(){g.clearRect(0,0,w,h);const pr=easeOut(T/1600);
-  for(let r=0;r<NR;r++){const row=rows[r];for(let q=0;q<NC;q++){const v=row.charCodeAt(q)-48;const px=offx+(q+.5)*cell,py=offy+(r+.5)*cell;
-   const dd=Math.hypot(px-mx,py-my),k=Math.max(0,1-dd/120);
-   const rv=clamp(pr*1.4-(q/NC)*.4-(r/NR)*.4);if(rv<=0)continue;
-   let a,col='174,187,245',rad=cell*.16;
-   if(v===1){a=.9;col='255,255,255';rad=cell*.24;const dc=Math.hypot(q-OSLO[0]*NC,r-OSLO[1]*NR),ring=(T/28)%90;if(Math.abs(dc-ring)<1.1){col='255,96,100';rad*=1.25}}
-   else if(v===2){a=.32}else if(v===3){a=.16}else{a=.05}
-   a=Math.min(1,a+k*.6);rad*=1+k*.8;
-   g.fillStyle=`rgba(${col},${a*rv})`;g.fillRect(px-rad,py-rad,rad*2,rad*2)}}
-  const o=[offx+OSLO[0]*NC*cell,offy+OSLO[1]*NR*cell];
-  g.strokeStyle=`rgba(255,96,100,${.95*pr})`;g.setLineDash([4,5]);g.lineDashOffset=-T/40;g.lineWidth=1.3;g.beginPath();g.moveTo(o[0],o[1]);g.lineTo(o[0]-cell*3,o[1]+cell*12);g.lineTo(o[0]-cell*1,h);g.stroke();g.setLineDash([]);
-  T+=16;if(!RM&&vis)requestAnimationFrame(draw)}
- c.parentElement.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;if(RM)draw()});c.parentElement.addEventListener('pointerleave',()=>{mx=my=-999});
- size();addEventListener('resize',size);if(RM)T=99999;draw();onVisible(c,v=>{vis=v;if(v&&!RM)requestAnimationFrame(draw)})})();
+(function(){const c=$('#map');if(!c||!window.__EU)return;const g=c.getContext('2d'),box=c.parentElement;const rows=__EU.rows.split(','),NR=rows.length,NC=rows[0].length,PINS=__EU.pins;
+ // cluster centres per country, Norway is the hub the links start from
+ const CL={};PINS.forEach(([n,x,y])=>{(CL[n]=CL[n]||[0,0,0]);CL[n][0]+=x;CL[n][1]+=y;CL[n][2]++});for(const k in CL){CL[k][0]/=CL[k][2];CL[k][1]/=CL[k][2]}
+ const tip=document.createElement('div');tip.className='maptip mono';box.appendChild(tip);
+ let w,h,cell,ox,oy,T=0,t0=0,vis=false,raf=0,mx=-999,my=-999,hov=-1;
+ function size(){const r=c.getBoundingClientRect();w=r.width;h=r.height;c.width=w*DPR;c.height=h*DPR;g.setTransform(DPR,0,0,DPR,0,0);cell=Math.min(w/NC,(h-24)/NR);ox=(w-cell*NC)/2;oy=(h-cell*NR)/2+6}
+ const XY=(x,y)=>[ox+x*NC*cell,oy+y*NR*cell];
+ function draw(now){if(!t0)t0=now;T=RM?1e6:now-t0;g.clearRect(0,0,w,h);
+  const rv=q=>clamp((T-200)/1400*1.6-q*.6);
+  for(let r=0;r<NR;r++){const row=rows[r];for(let q=0;q<NC;q++){const v=row.charCodeAt(q)-48;if(!v)continue;const px=ox+(q+.5)*cell,py=oy+(r+.5)*cell;
+   const k=clamp((q/NC+r/NR)/2),a0=rv(k);if(a0<=0)continue;const near=Math.max(0,1-Math.hypot(px-mx,py-my)/110);
+   let a=v===1?.62:.2,rad=cell*(v===1?.2:.15);a=Math.min(1,a+near*.5);rad*=1+near*.7;
+   g.fillStyle=v===1?`rgba(255,255,255,${a*a0})`:`rgba(174,187,245,${a*a0})`;g.fillRect(px-rad,py-rad,rad*2,rad*2)}}
+  // links from the Norwegian hub
+  const hub=XY(CL.Norway[0],CL.Norway[1]),la=clamp((T-1500)/900);
+  if(la>0){let i=0;for(const k in CL){if(k==='Norway')continue;const d=XY(CL[k][0],CL[k][1]),mxp=(hub[0]+d[0])/2,myp=Math.min(hub[1],d[1])-Math.hypot(d[0]-hub[0],d[1]-hub[1])*.28;
+    const u=clamp(la*1.4-i*.08);i++;if(u<=0)continue;g.strokeStyle=`rgba(255,255,255,${.28})`;g.lineWidth=1;g.setLineDash([3,5]);g.lineDashOffset=-T/60;g.beginPath();
+    const N=40;for(let s=0;s<=N*u;s++){const t=s/N,bx=(1-t)*(1-t)*hub[0]+2*(1-t)*t*mxp+t*t*d[0],by=(1-t)*(1-t)*hub[1]+2*(1-t)*t*myp+t*t*d[1];s?g.lineTo(bx,by):g.moveTo(bx,by)}g.stroke();g.setLineDash([]);
+    if(u>=1){const t=((T/2600)+i*.17)%1,bx=(1-t)*(1-t)*hub[0]+2*(1-t)*t*mxp+t*t*d[0],by=(1-t)*(1-t)*hub[1]+2*(1-t)*t*myp+t*t*d[1];const gr=g.createRadialGradient(bx,by,0,bx,by,6);gr.addColorStop(0,'rgba(255,255,255,.9)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(bx-6,by-6,12,12)}}}
+  // pins drop in one after another, then breathe
+  PINS.forEach(([n,x,y],i)=>{const p=XY(x,y),s=easeBack(clamp((T-900-i*70)/500));if(s<=0)return;const on=hov===i;
+   const ph=((T/2400)+i*.13)%1;g.strokeStyle=`rgba(255,96,100,${(1-ph)*.7*s})`;g.lineWidth=1.2;g.beginPath();g.arc(p[0],p[1],5+ph*16,0,7);g.stroke();
+   const gl=g.createRadialGradient(p[0],p[1],0,p[0],p[1],14*s);gl.addColorStop(0,'rgba(238,43,47,.55)');gl.addColorStop(1,'rgba(238,43,47,0)');g.fillStyle=gl;g.fillRect(p[0]-14,p[1]-14,28,28);
+   g.fillStyle='#EE2B2F';g.beginPath();g.arc(p[0],p[1],(on?7:5)*s,0,7);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(p[0],p[1],(on?2.6:1.8)*s,0,7);g.fill()});
+  raf=vis&&!RM?requestAnimationFrame(draw):0}
+ box.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;
+  hov=-1;let best=14;PINS.forEach(([n,x,y],i)=>{const p=XY(x,y),d=Math.hypot(p[0]-mx,p[1]-my);if(d<best){best=d;hov=i}});
+  if(hov>=0){const p=XY(PINS[hov][1],PINS[hov][2]);tip.textContent=PINS[hov][0];tip.style.transform=`translate(${p[0]+14}px,${p[1]-30}px)`;tip.classList.add('on');box.style.cursor='pointer'}else{tip.classList.remove('on');box.style.cursor=''}
+  if(RM)draw(0)});
+ box.addEventListener('pointerleave',()=>{mx=my=-999;hov=-1;tip.classList.remove('on');if(RM)draw(0)});
+ size();addEventListener('resize',()=>{size();if(RM)draw(0)});if(RM){draw(0);return}
+ onVisible(c,v=>{vis=v;if(v&&!raf)raf=requestAnimationFrame(draw)})})();
 
 /* ---------- wave lines (compute card + aim card) ---------- */
 function waves(c,opt){const g=c.getContext('2d');let w,h,T=0,vis=false;
