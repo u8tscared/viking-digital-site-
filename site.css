@@ -701,3 +701,6 @@ footer{padding-top:80px;overflow:hidden}
 .nav.scrolled .btn{border-radius:12px}
 .nav.scrolled .menu .pill{border-radius:10px}
 .nav.scrolled .prog-top{left:18px;right:18px;border-radius:2px}
+/* drawer portrait: whole head and shoulders, never cropped */
+.drawer .photo{aspect-ratio:auto;height:clamp(300px,48vh,440px);flex:none}
+.drawer .photo img{object-fit:contain;object-position:50% 100%;transform:none;filter:none}
