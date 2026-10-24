@@ -48,11 +48,11 @@ const photo=p=>`<div class="photo">${IMG['team-'+p.id]?`<img src="${IMG['team-'+
 /* ---------- nav: always visible, progress, sliding indicator, burger ---------- */
 (function(){const nav=$('#nav');if(!nav)return;const pt=nav.querySelector('.prog-top');let y0=scrollY;
  const menu=$('#menu');
- addEventListener('scroll',()=>{const y=scrollY;nav.classList.toggle('scrolled',y>10);y0=y;
+ addEventListener('scroll',()=>{const y=scrollY,was=nav.classList.contains('scrolled'),now=y>60;if(was!==now){nav.classList.toggle('scrolled',now);clearTimeout(nav._t);nav._t=setTimeout(()=>{go(on);ind.style.transition='none';go(on);requestAnimationFrame(()=>ind.style.transition='')},20);setTimeout(()=>go(on),760)}y0=y;
   const max=document.documentElement.scrollHeight-innerHeight;if(pt)pt.style.transform=`scaleX(${max>0?y/max:0})`},{passive:true});
  const ind=document.createElement('i');ind.className='ind';menu.appendChild(ind);menu.classList.add('has-ind');
  const on=menu.querySelector('a.on');
- function go(a){if(!a){ind.style.opacity=0;return}ind.style.opacity=1;ind.style.width=(a.offsetWidth-28)+'px';ind.style.transform=`translateX(${a.offsetLeft+14}px)`}
+ function go(a){if(!a){ind.style.opacity=0;return}ind.style.opacity=1;const pd=parseFloat(getComputedStyle(a).paddingLeft)||14;ind.style.width=(a.offsetWidth-2*pd)+'px';ind.style.transform=`translateX(${a.offsetLeft+pd}px)`}
  const pill=document.createElement('i');pill.className='pill';menu.appendChild(pill);
  const glide=a=>{if(!a){pill.style.opacity=0;return}const first=pill.style.opacity!=='1';if(first){pill.style.transition='opacity .25s';}pill.style.width=a.offsetWidth+'px';pill.style.transform=`translateX(${a.offsetLeft}px)`;pill.style.opacity=1;if(first)requestAnimationFrame(()=>pill.style.transition='')};
  menu.querySelectorAll('a').forEach(a=>a.addEventListener('mouseenter',()=>{go(a);glide(a)}));menu.addEventListener('mouseleave',()=>{go(on);glide(null)});

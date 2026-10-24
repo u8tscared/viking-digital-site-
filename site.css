@@ -651,14 +651,28 @@ footer{padding-top:80px;overflow:hidden}
 .hvbar a:hover{color:#fff}.hvbar a.on{background:#fff;color:var(--ink)}
 
 /* ---------- nav polish ---------- */
-.nav{transition:background .45s var(--ease),box-shadow .45s var(--ease),border-color .3s}
-.nav .wrap{transition:height .45s var(--ease)}
-.nav.scrolled{background:rgba(255,255,255,.94);box-shadow:0 10px 30px -18px rgba(11,19,48,.22)}
-.nav.scrolled .wrap{height:62px}
-.nav .brand img{transition:height .45s var(--ease),transform .7s cubic-bezier(.34,1.56,.64,1);transform-origin:50% 90%}
-.nav.scrolled .brand img{height:30px}
+/* nav: full-width bar at the top, gathers into a floating command bar once you scroll */
+.nav{height:72px;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;border:0;pointer-events:none}
+.nav::before{content:"";position:absolute;inset:0;background:rgba(255,255,255,.86);backdrop-filter:blur(14px) saturate(1.5);-webkit-backdrop-filter:blur(14px) saturate(1.5);transition:opacity .5s var(--ease),transform .6s var(--ease);transform-origin:top}
+.nav .wrap{--E:cubic-bezier(.65,0,.2,1);position:relative;pointer-events:auto;height:72px;transform:translateY(0);background:rgba(255,255,255,0);box-shadow:0 0 0 1px rgba(11,19,48,0),0 18px 40px -22px rgba(11,19,48,0);
+  transition:max-width .75s var(--E),height .6s var(--E),transform .6s var(--E),padding .6s var(--E),gap .6s var(--E),background .4s,box-shadow .6s var(--E)}
+.nav.scrolled::before{opacity:0;transform:scaleY(.6)}
+.nav.scrolled .wrap{max-width:860px;height:56px;transform:translateY(10px);gap:12px;padding-left:14px;padding-right:8px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px) saturate(1.6);-webkit-backdrop-filter:blur(16px) saturate(1.6);box-shadow:0 0 0 1px rgba(11,19,48,.09),0 18px 40px -22px rgba(11,19,48,.35)}
+.nav .brand img{transition:height .6s var(--ease),transform .7s cubic-bezier(.34,1.56,.64,1);transform-origin:50% 90%}
+.nav.scrolled .brand img{height:28px}
 .nav .brand:hover img{transform:rotate(-7deg) translateY(-1px)}
-.nav .brand span{transition:letter-spacing .45s var(--ease)}
+.nav .brand span{display:inline-block;max-width:220px;white-space:nowrap;overflow:hidden;transition:max-width .7s var(--E,ease),opacity .4s}
+.nav.scrolled .brand span{max-width:0;opacity:0}
+.nav.scrolled .brand{gap:0}
+.nav .brand{transition:gap .6s var(--ease)}
+.menu a{transition:color .25s,padding .6s var(--ease),font-size .6s var(--ease)}
+.nav.scrolled .menu{margin-inline:auto}
+.nav.scrolled .menu a{padding-inline:12px;font-size:14px}
+.nav .btn{transition:color .35s var(--ease),height .6s var(--ease),padding .6s var(--ease),box-shadow .45s var(--ease)}
+.nav.scrolled .btn{height:40px;padding:0 14px}
+.nav .prog-top{left:0;right:0;bottom:-1px;width:auto;transition:opacity .4s}
+.nav.scrolled .prog-top{bottom:0;left:0;right:0;height:2px}
+@media (max-width:900px){.nav.scrolled .wrap{max-width:calc(100% - 20px);padding-left:12px;padding-right:6px}.nav.scrolled .brand span{max-width:220px;opacity:1}.nav.scrolled .brand{gap:10px}}
 .menu .pill{position:absolute;top:50%;left:0;height:36px;margin-top:-18px;background:var(--wash);z-index:-1;opacity:0;transition:transform .45s var(--ease),width .45s var(--ease),opacity .25s;pointer-events:none}
 .menu{position:relative;isolation:isolate}
 .js .nav .brand,.js .menu a,.js .nav .btn,.js .nav .burger{opacity:0;transform:translateY(-10px);animation:navin .8s var(--ease) forwards}
