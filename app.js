@@ -53,7 +53,9 @@ const photo=p=>`<div class="photo">${IMG['team-'+p.id]?`<img src="${IMG['team-'+
  const ind=document.createElement('i');ind.className='ind';menu.appendChild(ind);menu.classList.add('has-ind');
  const on=menu.querySelector('a.on');
  function go(a){if(!a){ind.style.opacity=0;return}ind.style.opacity=1;ind.style.width=(a.offsetWidth-28)+'px';ind.style.transform=`translateX(${a.offsetLeft+14}px)`}
- menu.querySelectorAll('a').forEach(a=>a.addEventListener('mouseenter',()=>go(a)));menu.addEventListener('mouseleave',()=>go(on));
+ const pill=document.createElement('i');pill.className='pill';menu.appendChild(pill);
+ const glide=a=>{if(!a){pill.style.opacity=0;return}const first=pill.style.opacity!=='1';if(first){pill.style.transition='opacity .25s';}pill.style.width=a.offsetWidth+'px';pill.style.transform=`translateX(${a.offsetLeft}px)`;pill.style.opacity=1;if(first)requestAnimationFrame(()=>pill.style.transition='')};
+ menu.querySelectorAll('a').forEach(a=>a.addEventListener('mouseenter',()=>{go(a);glide(a)}));menu.addEventListener('mouseleave',()=>{go(on);glide(null)});
  requestAnimationFrame(()=>{ind.style.transition='none';go(on);requestAnimationFrame(()=>ind.style.transition='')});addEventListener('resize',()=>go(on));
  const bg=$('#burger');bg.onclick=()=>menu.classList.toggle('open')})();
 
@@ -192,7 +194,7 @@ function Campus(cv,opt){
  }
  function inside(p,pl){let c=false;for(let i=0,j=pl.length-1;i<pl.length;j=i++){const [xi,yi]=pl[i],[xj,yj]=pl[j];if(((yi>p[1])!=(yj>p[1]))&&(p[0]<(xj-xi)*(p[1]-yi)/(yj-yi)+xi))c=!c}return c}
  if(opt.hover){const tip=opt.tip;
-  cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect(),p=[e.clientX-r.left,e.clientY-r.top];tdx=-(p[0]/W-.5)*12;tdy=-(p[1]/H-.5)*7;
+  cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect(),p=[e.clientX-r.left,e.clientY-r.top];
    let h=-1;[...order].reverse().some(n=>{if(tops[n]&&hallK(n)>.5&&inside(p,tops[n])){h=n;return true}});hover=h;
    if(h>=0&&tip){const L=LBL[halls[h][5]];tip.querySelector('#tipk').textContent=L[0];tip.querySelector('#tipv').textContent=L[1];tip.style.left=Math.min(r.width-230,p[0]+16)+'px';tip.style.top=(p[1]+16)+'px';tip.classList.add('on')}else if(tip)tip.classList.remove('on');
    if(RM)frame(performance.now())});
@@ -317,3 +319,12 @@ $$('a[href="#top"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault(
  const go=()=>{build();if(RM){born=-1e5;draw(performance.now())}};
  (document.fonts?document.fonts.ready:Promise.resolve()).then(go);addEventListener('resize',()=>{build();if(RM)draw(performance.now())});
  onVisible(box,v=>{vis=v;if(v&&!born)born=performance.now();if(v&&!raf&&!RM)raf=requestAnimationFrame(draw)})})();
+
+/* ---------- footer reveal + copy address ---------- */
+(function(){const f=$('#footer');if(!f||!f.classList.contains('ft3'))return;
+ const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;f.classList.add(e.target===f?'in':'in2');io.unobserve(e.target)}),{threshold:.15});
+ io.observe(f);const row=f.querySelector('.ft3-row');row&&io.observe(row);
+ const ad=f.querySelector('.ft3-addr');if(ad){ad.insertAdjacentHTML('beforeend','<span class="cp">Copy address</span>');const cp=ad.querySelector('.cp');
+  ad.addEventListener('click',()=>{const t='Dronning Eufemias gate 10, 0191 Oslo';const ok=()=>{ad.classList.add('ok');cp.textContent='Copied';setTimeout(()=>{ad.classList.remove('ok');cp.textContent='Copy address'},1600)};
+   try{navigator.clipboard.writeText(t).then(ok,ok)}catch(e){ok()}})}
+ const up=f.querySelector('.up');up&&up.addEventListener('click',e=>{e.preventDefault();scrollTo({top:0,behavior:RM?'auto':'smooth'})})})();
