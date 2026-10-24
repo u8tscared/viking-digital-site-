@@ -45,10 +45,10 @@ const photo=p=>`<div class="photo">${IMG['team-'+p.id]?`<img src="${IMG['team-'+
 /* ---------- reveal on scroll ---------- */
 (function(){const els=$$('.rv,[data-split]');const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12,rootMargin:'0px 0px -6% 0px'});els.forEach(el=>{const r=el.getBoundingClientRect();if(r.top<innerHeight)el.classList.add('in');else io.observe(el)})})();
 
-/* ---------- nav: hide on scroll, progress, sliding indicator, burger ---------- */
+/* ---------- nav: always visible, progress, sliding indicator, burger ---------- */
 (function(){const nav=$('#nav');if(!nav)return;const pt=nav.querySelector('.prog-top');let y0=scrollY;
  const menu=$('#menu');
- addEventListener('scroll',()=>{const y=scrollY;nav.classList.toggle('scrolled',y>10);nav.classList.toggle('hide',y>y0&&y>400&&!menu.classList.contains('open'));y0=y;
+ addEventListener('scroll',()=>{const y=scrollY;nav.classList.toggle('scrolled',y>10);y0=y;
   const max=document.documentElement.scrollHeight-innerHeight;if(pt)pt.style.transform=`scaleX(${max>0?y/max:0})`},{passive:true});
  const ind=document.createElement('i');ind.className='ind';menu.appendChild(ind);menu.classList.add('has-ind');
  const on=menu.querySelector('a.on');
@@ -292,3 +292,28 @@ $$('a[href="#top"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault(
   T+=16;if(!RM&&vis)requestAnimationFrame(d)}
  const f=c.parentElement;f.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;if(amx<-9000)amx=mx;if(RM)d()});f.addEventListener('pointerleave',()=>{mx=my=-9999});
  size();addEventListener('resize',size);d();onVisible(c,v=>{vis=v;if(v&&!RM)requestAnimationFrame(d)})})();
+
+/* ---------- footer signature: "Viking Digital" as a field of dots that light up around the cursor ---------- */
+(function(){const box=$('#ftdots');if(!box)return;const cv=box.querySelector('canvas'),g=cv.getContext('2d');
+ let W,H,pts=[],mx=-1e4,my=-1e4,ax=-1e4,ay=-1e4,vis=false,raf=0,born=0;
+ function build(){const r=box.getBoundingClientRect();W=r.width;H=r.height;if(!W)return;cv.width=W*DPR;cv.height=H*DPR;
+  const o=document.createElement('canvas'),c=o.getContext('2d');o.width=Math.round(W);o.height=Math.round(H);
+  let fs=H*1.08;c.font=`800 ${fs}px "Schibsted Grotesk", sans-serif`;const tw=c.measureText('Viking Digital').width;fs*=Math.min(1,W/tw);
+  c.font=`800 ${fs}px "Schibsted Grotesk", sans-serif`;c.textBaseline='alphabetic';c.fillStyle='#fff';
+  const m=c.measureText('Viking Digital');c.fillText('Viking Digital',(W-m.width)/2,H-m.actualBoundingBoxDescent-2);
+  const d=c.getImageData(0,0,o.width,o.height).data,step=W<600?4:Math.max(5,Math.round(W/230));pts=[];
+  for(let y=step/2;y<o.height;y+=step)for(let x=step/2;x<o.width;x+=step){if(d[(Math.floor(y)*o.width+Math.floor(x))*4+3]>128)pts.push([x,y,Math.random()])}
+  box.dataset.step=step}
+ function draw(now){const t=now/1000,step=+box.dataset.step||6;const idle=mx<-1e3,tx=idle?W*(.5+.48*Math.sin(t*.32)):mx,ty=idle?H*(.55+.2*Math.sin(t*.9)):my;ax+=(tx-ax)*(idle?.04:.12);ay+=(ty-ay)*(idle?.04:.12);
+  g.setTransform(DPR,0,0,DPR,0,0);g.clearRect(0,0,W,H);const k=easeOut((now-born)/1600);
+  for(const [x,y,r] of pts){const a=clamp(k*1.6-r*.6);if(a<=0)continue;
+   const wave=.5+.5*Math.sin(x/90-t*1.1+Math.sin(y/60+t*.4));const dd=Math.hypot(x-ax,y-ay),near=Math.max(0,1-dd/150);
+   const rad=step*.5*(.42+.2*wave+.55*near);
+   g.fillStyle=near>.02?`rgba(${near>.55?R:'143,162,255'},${.35+.65*near})`:`rgba(255,255,255,${(.1+.16*wave)*a})`;
+   g.beginPath();g.arc(x,y-(1-a)*14,rad,0,7);g.fill()}
+  raf=vis&&!RM?requestAnimationFrame(draw):0}
+ box.addEventListener('pointermove',e=>{const r=box.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top});
+ box.addEventListener('pointerleave',()=>{mx=my=-1e4});
+ const go=()=>{build();if(RM){born=-1e5;draw(performance.now())}};
+ (document.fonts?document.fonts.ready:Promise.resolve()).then(go);addEventListener('resize',()=>{build();if(RM)draw(performance.now())});
+ onVisible(box,v=>{vis=v;if(v&&!born)born=performance.now();if(v&&!raf&&!RM)raf=requestAnimationFrame(draw)})})();
