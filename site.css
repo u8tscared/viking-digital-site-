@@ -718,10 +718,3 @@ footer{padding-top:80px;overflow:hidden}
 .maptip{position:absolute;left:0;top:0;padding:6px 10px;background:#fff;color:var(--ink);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-radius:8px;box-shadow:0 10px 24px -12px rgba(0,0,0,.5);pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;z-index:3}
 .maptip.on{opacity:1}
 
-/* partners: open logo strip, no boxes */
-.partners{border-bottom:0;grid-template-columns:auto 1fr;gap:8px;padding-block:28px}
-.partners .lab{border-right:0}
-.logo-cell{width:auto;height:96px;border-right:0;padding:0 clamp(28px,3.4vw,52px)}
-.logo-cell img{max-width:none;max-height:none;filter:grayscale(1) contrast(1.15);opacity:.5}
-.logo-cell:hover img{opacity:1;filter:none;transform:scale(1.05)}
-.track{animation-duration:60s}
