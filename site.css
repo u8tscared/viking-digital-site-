@@ -701,7 +701,13 @@ footer{padding-top:80px;overflow:hidden}
 .nav.scrolled .btn{border-radius:12px}
 .nav.scrolled .menu .pill{border-radius:10px}
 .nav.scrolled .prog-top{left:18px;right:18px;border-radius:2px}
-/* drawer portrait: whole head and shoulders, never cropped */
-.drawer .photo{aspect-ratio:auto;height:clamp(300px,48vh,440px);flex:none}
-.drawer .photo img{object-fit:contain;object-position:50% 100%;transform:none;filter:none}
-.drawer .photo img{inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 6%;transform:none}
+/* drawer: fixed 4:5 portrait card beside the name; the photo keeps its native ratio so nothing is ever cropped */
+.drawer .dhead{display:grid;grid-template-columns:clamp(120px,32%,176px) minmax(0,1fr);gap:24px;align-items:end;padding:72px 32px 0}
+.drawer .dhead .photo{aspect-ratio:4/5;height:auto;width:100%;border-radius:0}
+.drawer .dhead .photo img{inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%;transform:none;filter:none}
+.drawer .dhead h3{margin-top:10px;font-size:clamp(26px,3vw,34px);line-height:1.05;text-wrap:balance}
+.drawer .dhead .role{margin-top:10px}
+.drawer .body{padding-top:28px}
+.drawer.open .dhead .photo img{animation:dimg .7s var(--ease) both .15s}
+@keyframes dimg{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (max-width:420px){.drawer .dhead{grid-template-columns:112px minmax(0,1fr);gap:16px;padding:68px 20px 0}.drawer .body{padding-inline:20px}}
